@@ -32,50 +32,58 @@
 </div>
 
 <script>
-  const CSV_URL = "datapelanggan.csv";
+const CSV_URL = "datapelanggan.csv"; // file CSV satu folder
 
-  function login() {
-    const nohp = document.getElementById("no_hp").value.trim();
-    const pesan = document.getElementById("pesan");
+function login() {
+  const nohp = document.getElementById("no_hp").value.trim();
+  const pesan = document.getElementById("pesan");
 
-    if (!nohp) {
-      pesan.style.color = "red";
-      pesan.innerText = "Nomor telepon wajib diisi";
-      return;
-    }
+  pesan.innerText = "Memeriksa data...";
+  pesan.style.color = "black";
 
-    fetch(CSV_URL)
-      .then(res => res.text())
-      .then(text => {
-        const rows = text.split("\n").slice(1);
-        let ditemukan = false;
-
-        rows.forEach(row => {
-          const kolom = row.split(",");
-          const hp = kolom[0]?.trim();
-          const status = kolom[2]?.trim();
-
-          if (hp === nohp && status === "aktif") {
-            ditemukan = true;
-          }
-        });
-
-        if (ditemukan) {
-          pesan.style.color = "green";
-          pesan.innerText = "Login berhasil";
-          localStorage.setItem("login_hp", nohp);
-          // window.location.href = "dashboard.html";
-        } else {
-          pesan.style.color = "red";
-          pesan.innerText = "Nomor tidak terdaftar / tidak aktif";
-        }
-      })
-      .catch(() => {
-        pesan.style.color = "red";
-        pesan.innerText = "Gagal mengambil data";
-      });
+  if (!nohp) {
+    pesan.innerText = "Nomor telepon wajib diisi";
+    pesan.style.color = "red";
+    return;
   }
+
+  fetch(CSV_URL)
+    .then(response => response.text())
+    .then(text => {
+      const rows = text.replace(/\r/g, "").split("\n");
+      let ditemukan = false;
+
+      for (let i = 1; i < rows.length; i++) {
+        const kolom = rows[i].split(",");
+        if (kolom.length < 1) continue;
+
+        const hp = kolom[0].trim();
+        const status = kolom[2]?.trim().toLowerCase();
+
+        if (hp === nohp && status === "aktif") {
+          ditemukan = true;
+          break;
+        }
+      }
+
+      if (ditemukan) {
+        pesan.innerText = "Login berhasil";
+        pesan.style.color = "green";
+        localStorage.setItem("login_hp", nohp);
+        // window.location.href = "menu.html";
+      } else {
+        pesan.innerText = "Nomor tidak terdaftar / tidak aktif";
+        pesan.style.color = "red";
+      }
+    })
+    .catch(err => {
+      pesan.innerText = "Gagal membaca file CSV";
+      pesan.style.color = "red";
+      console.error(err);
+    });
+}
 </script>
+
 
 </body>
 
