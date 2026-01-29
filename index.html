@@ -6,6 +6,78 @@
     <title>Document</title>
 </head>
 <body>
-    Nethome.id
+    <body>
+
+<div style="max-width:360px;margin:80px auto;padding:25px;border:1px solid #ddd;border-radius:8px;font-family:Arial">
+
+  <h2 style="text-align:center;">Login Pelanggan</h2>
+
+  <label>Nomor Telepon</label>
+  <input
+    type="tel"
+    id="no_hp"
+    placeholder="08xxxxxxxxxx"
+    style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc;border-radius:5px;"
+  >
+
+  <button
+    onclick="login()"
+    style="width:100%;padding:10px;background:#007bff;color:#fff;border:none;border-radius:5px;cursor:pointer;"
+  >
+    Login
+  </button>
+
+  <p id="pesan" style="margin-top:15px;text-align:center;"></p>
+
+</div>
+
+<script>
+  const CSV_URL = "https://raw.githubusercontent.com/USERNAME/NAMA-REPO/main/pelanggan.csv";
+
+  function login() {
+    const nohp = document.getElementById("no_hp").value.trim();
+    const pesan = document.getElementById("pesan");
+
+    if (!nohp) {
+      pesan.style.color = "red";
+      pesan.innerText = "Nomor telepon wajib diisi";
+      return;
+    }
+
+    fetch(CSV_URL)
+      .then(res => res.text())
+      .then(text => {
+        const rows = text.split("\n").slice(1);
+        let ditemukan = false;
+
+        rows.forEach(row => {
+          const kolom = row.split(",");
+          const hp = kolom[0]?.trim();
+          const status = kolom[2]?.trim();
+
+          if (hp === nohp && status === "aktif") {
+            ditemukan = true;
+          }
+        });
+
+        if (ditemukan) {
+          pesan.style.color = "green";
+          pesan.innerText = "Login berhasil";
+          localStorage.setItem("login_hp", nohp);
+          // window.location.href = "dashboard.html";
+        } else {
+          pesan.style.color = "red";
+          pesan.innerText = "Nomor tidak terdaftar / tidak aktif";
+        }
+      })
+      .catch(() => {
+        pesan.style.color = "red";
+        pesan.innerText = "Gagal mengambil data";
+      });
+  }
+</script>
+
+</body>
+
 </body>
 </html>
